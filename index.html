@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Useful Notebook</title>
+    <style>
+        * {
+            --col: rgba(220,220,220);
+            font-family: sans-serif;
+        }
+        html, body {
+            background-color: black;
+            color: var(--col)
+        }
+        #location {
+
+        }
+        #nodeContainer {
+            position: fixed;
+            left: 0;
+            z-index: -1;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="nodeContainer">
+
+    </div>
+    <span id="location">root / note 1 / note 2</span>
+    <script>
+        var state = JSON.parse(localStorage.getItem("data") || JSON.stringify(
+            {
+                name: "My Notebook",
+                content: "Write information about your notebook here.",
+                children: []
+            }
+        ));
+        const toDo = [[state, state]];
+        while (toDo.length > 0) {
+            const currentItem = toDo[0];
+            currentItem[0].__parent = currentItem[1];
+            toDo.shift();
+            toDo.push(...currentItem[0].children.map(x=>[x,x]));
+        }
+        var position = state;
+
+        function reloadUI() {
+            var locationStack = [position];
+            while (locationStack[0].__parent !== locationStack[0]) {
+                locationStack.unshift(locationStack[0].__parent);
+            }
+            document.querySelector("#location").innerText = locationStack.map(x=>x.name).join(" / ") + " /";
+            document.querySelector("#nodeContainer").innerHTML = "";
+        }
+        reloadUI();
+        function storeData() {
+            var state2 = structuredClone(state);
+            const toDo2 = [state2];
+            while (toDo2.length > 0) {
+                const currentItem = toDo2[0];
+                delete currentItem.__parent;
+                toDo2.shift();
+                toDo2.push(...currentItem.children.map(x=>[x,x]));
+            }
+            localStorage.setItem("data", JSON.stringify(state2));
+        }
+        window.addEventListener("beforeunload", ()=>{
+            storeData();
+        });
+    </script>
+</body>
+</html>
