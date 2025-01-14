@@ -116,13 +116,13 @@
 
     </div>
     <script>
-        var lastMouseEvent = {x: 0, y: 0};
-        var latestHostBB = {top: 0, left: 0, height: 0, width: 0};
+        var lastMouseEvent = { x: 0, y: 0 };
+        var latestHostBB = { top: 0, left: 0, height: 0, width: 0 };
         var mRenderer;
         var state = JSON.parse(localStorage.getItem("data") || JSON.stringify(
             {
                 name: "My Notebook",
-                content: "Click on the title of a note to rename it. You can also drag notes.\\\n\\\nRight click to edit the markdown of a note.\\\n\\\nShift+A to add a note at your cursor.\\\n\\\nPress TAB while hovering over a note to enter it\\\n\\\nPress CTRL+TAB to exit the current note.\\\n\\\nPress BACKSPACE while hovering over a note to delete it.",
+                content: "Click on the title of a note to rename it. You can also drag notes.\\\n\\\nRight click to edit the markdown of a note.\\\n\\\n`Shift + A` to add a note at your cursor.\\\n\\\nPress `TAB` while hovering over a note to enter it\\\n\\\nPress `SHIFT + TAB` to exit the current note.\\\n\\\nPress `BACKSPACE` while hovering over a note to delete it.",
                 width: 500,
                 height: 250,
                 x: 50,
@@ -151,9 +151,9 @@
                 if (struct === position) {
                     latestHostBB = node.getBoundingClientRect();
                 }
-                node.style.left = (struct.x + (e.x - startPos.x)) + "px";
-                node.style.top = (struct.y + (e.y - startPos.y)) + "px";
-                document.querySelectorAll("line").forEach(line=>line._reload());
+                node.style.left = struct.x + (e.x - startPos.x) + "px";
+                node.style.top = struct.y + (e.y - startPos.y) + "px";
+                document.querySelectorAll("line").forEach(line => line._reload());
             }
             function stopDragHandler(e) {
                 if (struct === position) {
@@ -169,9 +169,11 @@
             }
             title.addEventListener("mousedown", (e) => {
                 startPos = e;
-                node.setAttribute("data-grabbing", "yes");
-                window.addEventListener("mousemove", dragHandler);
-                window.addEventListener("mouseup", stopDragHandler);
+                if (struct !== position) {
+                    node.setAttribute("data-grabbing", "yes");
+                    window.addEventListener("mousemove", dragHandler);
+                    window.addEventListener("mouseup", stopDragHandler);
+                }
             })
             title.addEventListener("keyup", () => {
                 struct.name = title.innerText;
@@ -180,7 +182,7 @@
             node.addEventListener("mouseup", () => {
                 struct.width = parseInt(node.style.width.replace("px", ""));
                 struct.height = parseInt(node.style.height.replace("px", ""));
-                document.querySelectorAll("line").forEach(line=>line._reload());
+                document.querySelectorAll("line").forEach(line => line._reload());
             });
             node.addEventListener("mouseleave", () => {
                 struct.width = parseInt(node.style.width.replace("px", ""));
@@ -213,8 +215,16 @@
             });
             node.appendChild(title);
             node.appendChild(editor);
-            node.style.left = struct.x + "px";
-            node.style.top = struct.y + "px";
+            if (struct === position) {
+                window.onresize = ()=>{
+                    node.style.left = (window.innerWidth / 2) - (struct.width / 2) + "px";
+                    node.style.top = (window.innerHeight / 2) - (struct.height / 2) + "px";
+                }
+                window.onresize();
+            } else {
+                node.style.left = struct.x + "px";
+                node.style.top = struct.y + "px";
+            }
             node.style.width = struct.width + "px";
             node.style.height = struct.height + "px";
             if ((struct.__parent === position) && (struct.__parent !== struct)) {
@@ -277,13 +287,13 @@
         window.addEventListener("beforeunload", () => {
             storeData();
         });
-        window.addEventListener("mousemove", (e)=>lastMouseEvent=e);
-        window.addEventListener("keydown", (e)=>{
-            if (e.target !== document.body) {
-                return;
+        window.addEventListener("mousemove", (e) => lastMouseEvent = e);
+        window.addEventListener("keydown", (e) => {
+            if (e.key.toLowerCase() === "tab") {
+                e.preventDefault();
             }
 
-            if (e.shiftKey && (e.key.toLowerCase() === "a")) {
+            if (e.shiftKey && (e.key.toLowerCase() === "a") && (e.target === document.body)) {
                 var newNode = {
                     name: "New Node",
                     content: "",
@@ -299,7 +309,7 @@
                 e.preventDefault();
                 return;
             }
-            if ((e.key.toLowerCase() === "backspace") || (e.key.toLowerCase() === "delete")) {
+            if (((e.key.toLowerCase() === "backspace") || (e.key.toLowerCase() === "delete")) && (e.target === document.body)) {
                 var target = document.elementFromPoint(lastMouseEvent.x, lastMouseEvent.y).closest(".node.subordinate");
                 if (target) {
                     position.children.splice(position.children.indexOf(target._struct), 1);
@@ -308,9 +318,30 @@
                 e.preventDefault();
                 return;
             }
+            if (e.shiftKey && (e.key.toLowerCase() === "tab") &&
+                ((e.target === document.body) || (e.target.classList.contains("aTitle")))) {
+                position = position.__parent;
+                reloadUI();
+                e.preventDefault();
+                return;
+            }
+            if (!e.shiftKey && (e.key.toLowerCase() === "tab") &&
+            ((e.target === document.body) || (e.target.classList.contains("aTitle")))) {
+                var target = document.elementFromPoint(lastMouseEvent.x, lastMouseEvent.y).closest(".node.subordinate");
+                if (target && (target._struct !== position)) {
+                    position = target._struct;
+                    reloadUI();
+                }
+                e.preventDefault();
+                return;
+            }
         });
         function svgResize() {
             document.querySelector("#svg").setAttribute("viewBox", `0 0 ${window.innerWidth} ${window.innerHeight}`);
+            if (document.querySelector(".node:not(.subordinate)")) {
+                latestHostBB = document.querySelector(".node:not(.subordinate)").getBoundingClientRect();
+                document.querySelectorAll("line").forEach(line => line._reload());
+            }
         }
         svgResize();
         window.addEventListener("resize", svgResize);
