@@ -107,6 +107,22 @@
             top: 0;
             height: 100vh;
         }
+
+        code {
+            font-family: monospace !important;
+            background-color: rgb(165 255 255 / 10%);
+            padding: 2px;
+            border-radius: 4px;
+            position: relative;
+            top: -2px;
+            transition: background-color 0.3s;
+        }
+        code:hover {
+            background-color: rgb(165 255 255 / 20%);
+        }
+        pre>code {
+            display: block;
+        }
     </style>
 </head>
 
@@ -173,11 +189,9 @@
             }
             title.addEventListener("mousedown", (e) => {
                 startPos = e;
-                if (struct !== position) {
-                    node.setAttribute("data-grabbing", "yes");
-                    window.addEventListener("mousemove", dragHandler);
-                    window.addEventListener("mouseup", stopDragHandler);
-                }
+                node.setAttribute("data-grabbing", "yes");
+                window.addEventListener("mousemove", dragHandler);
+                window.addEventListener("mouseup", stopDragHandler);
             })
             title.addEventListener("keyup", () => {
                 struct.name = title.innerText;
@@ -221,14 +235,13 @@
             node.appendChild(editor);
             if (struct === position) {
                 window.onresize = ()=>{
-                    node.style.left = (window.innerWidth / 2) - (struct.width / 2) + "px";
-                    node.style.top = (window.innerHeight / 2) - (struct.height / 2) + "px";
+                    latestHostBB = node.getBoundingClientRect();
+                    document.querySelectorAll("line").forEach(line => line._reload());
                 }
                 window.onresize();
-            } else {
-                node.style.left = struct.x + "px";
-                node.style.top = struct.y + "px";
             }
+            node.style.left = struct.x + "px";
+            node.style.top = struct.y + "px";
             node.style.width = struct.width + "px";
             node.style.height = struct.height + "px";
             if ((struct.__parent === position) && (struct.__parent !== struct)) {
