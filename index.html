@@ -182,6 +182,10 @@
                 struct.height = parseInt(node.style.height.replace("px", ""));
                 document.querySelectorAll("line").forEach(line=>line._reload());
             });
+            node.addEventListener("mouseleave", () => {
+                struct.width = parseInt(node.style.width.replace("px", ""));
+                struct.height = parseInt(node.style.height.replace("px", ""));
+            });
             title.contentEditable = true;
             var editor = document.createElement("div");
             editor.spellcheck = false;
