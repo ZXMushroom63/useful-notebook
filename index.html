@@ -226,7 +226,6 @@
                     line.setAttribute('stroke', 'white');
                     line.setAttribute('stroke-width', '1');
                 }
-                line._reload();
                 node._line = line;
                 svg.appendChild(line);
             }
@@ -248,7 +247,9 @@
             nodeContainer.appendChild(host);
             latestHostBB = host.getBoundingClientRect();
             position.children.forEach(child => {
-                nodeContainer.appendChild(makeNodeHTML(child));
+                var childNode = makeNodeHTML(child);
+                nodeContainer.appendChild(childNode);
+                childNode._line._reload();
             });
         }
         window.addEventListener("load", () => {
