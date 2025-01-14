@@ -49,7 +49,6 @@
         .node {
             background-color: rgba(255, 255, 255, 0.1);
             border: 1px solid white;
-            box-shadow: 0px 0px 12px 1px rgba(255, 255, 255, 0.5);
             backdrop-filter: blur(5px);
             position: absolute;
             border-radius: 0.5rem;
@@ -73,6 +72,10 @@
             backdrop-filter: blur(10px);
             cursor: grab;
             white-space: nowrap;
+        }
+
+        .node:not(.subordinate) {
+            box-shadow: 0px 0px 12px 1px rgba(255, 255, 255, 0.5);
         }
 
         .subordinate {
@@ -138,6 +141,7 @@
             toDo.push(...currentItem[0].children.map(x => [x, currentItem[0]]));
         }
         var position = state;
+        var observers = [];
         function makeNodeHTML(struct) {
             var startPos;
             var node = document.createElement("div");
@@ -243,6 +247,21 @@
                 node._line = line;
                 svg.appendChild(line);
             }
+            if (struct === position) {
+                var resizeObserver = new MutationObserver((cb)=>{
+                    struct.width = parseInt(node.style.width.replace("px", ""));
+                    struct.height = parseInt(node.style.height.replace("px", ""));
+                    window.onresize();
+                });
+                resizeObserver.observe(node, {
+                    childList: false,
+                    subtree: false,
+                    attributes: true,
+                    attributeFilter: ["style"],
+                    characterData: false
+                });
+                observers.push(resizeObserver);
+            }
             return node;
         }
         function reloadLocationUI() {
@@ -255,6 +274,8 @@
         function reloadUI() {
             reloadLocationUI();
             var nodeContainer = document.querySelector("#nodeContainer");
+            observers.forEach(x=>x.disconnect());
+            observers = [];
             nodeContainer.innerHTML = "";
             document.querySelector("#svg").innerHTML = "";
             var host = makeNodeHTML(position);
