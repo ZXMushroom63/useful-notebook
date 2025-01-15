@@ -433,14 +433,14 @@
                 return;
             }
             if (e.shiftKey && (e.key.toLowerCase() === "tab") &&
-                ((e.target === document.body) || (e.target.classList.contains("aTitle")))) {
+                ((e.target === document.body) || (e.target.classList.contains("aTitle")) || (e.target.type === "checkbox"))) {
                 position = position.__parent;
                 reloadUI();
                 e.preventDefault();
                 return;
             }
             if (!e.shiftKey && (e.key.toLowerCase() === "tab") &&
-                ((e.target === document.body) || (e.target.classList.contains("aTitle")))) {
+                ((e.target === document.body) || (e.target.classList.contains("aTitle")) || (e.target.type === "checkbox"))) {
                 var target = document.elementFromPoint(lastMouseEvent.x, lastMouseEvent.y).closest(".node.subordinate");
                 if (target && (target._struct !== position)) {
                     position = target._struct;
