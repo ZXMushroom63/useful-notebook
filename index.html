@@ -299,7 +299,7 @@
             });
             editor.addEventListener("keyup", () => {
                 if (editor._editing) {
-                    struct.content = editor.innerText;
+                    struct.content = editor.innerText.replaceAll(" ", " ");
                 }
             });
             editor.addEventListener("blur", () => {
