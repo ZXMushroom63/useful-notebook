@@ -117,9 +117,11 @@
             top: -2px;
             transition: background-color 0.3s;
         }
+
         code:hover {
             background-color: rgb(165 255 255 / 20%);
         }
+
         pre>code {
             display: block;
         }
@@ -135,13 +137,40 @@
 
     </div>
     <script>
+        const saveFile = async () => {
+            const fileHandle = await window.showSaveFilePicker();
+            const writable = await fileHandle.createWritable();
+            await writable.write(JSON.stringify(getSerializeableStateObject()));
+            await writable.close();
+        };
+        const openFile = async () => {
+            const [fileHandle] = await window.showOpenFilePicker();
+            const file = await fileHandle.getFile();
+            const contents = await file.text();
+            try {
+                state = JSON.parse(contents);
+            } catch (error) {
+                state = {
+                    name: "Load Error",
+                    content: "The notebook file you selected was invalid. Error: "+error,
+                    width: 300,
+                    height: 300,
+                    x: 50,
+                    y: 50,
+                    children: []
+                }
+            };
+            position = state;
+            loadParentProps();
+            reloadUI();
+        };
         var lastMouseEvent = { x: 0, y: 0 };
         var latestHostBB = { top: 0, left: 0, height: 0, width: 0 };
         var mRenderer;
         var state = JSON.parse(localStorage.getItem("data") || JSON.stringify(
             {
                 name: "My Notebook",
-                content: "Click on the title of a note to rename it. You can also drag notes.\\\n\\\nRight click to edit the markdown of a note.\\\n\\\n`Shift + A` to add a note at your cursor.\\\n\\\nPress `TAB` while hovering over a note to enter it\\\n\\\nPress `SHIFT + TAB` to exit the current note.\\\n\\\nPress `BACKSPACE` while hovering over a note to delete it.\\\n\\\n\\\n\\\nMade by [ZXMushroom63](https://github.com/ZXMushroom63)",
+                content: "Click on the title of a note to rename it. You can also drag notes.\n- Right click to edit the markdown of a note.\n- `Shift + A` to add a note at your cursor.\n- Press `TAB` while hovering over a note to enter it\n- Press `SHIFT + TAB` to exit the current note.\\\n- Press `BACKSPACE` or `DEL` while hovering over a note to delete it.\n- Use `CTRL+S` and `CTRL+O` to save and load notebooks.\\\n\\\n\\\n\\\nMade by [ZXMushroom63](https://github.com/ZXMushroom63)",
                 width: 500,
                 height: 300,
                 x: 50,
@@ -149,13 +178,16 @@
                 children: []
             }
         ));
-        const toDo = [[state, state]];
-        while (toDo.length > 0) {
-            const currentItem = toDo[0];
-            currentItem[0].__parent = currentItem[1];
-            toDo.shift();
-            toDo.push(...currentItem[0].children.map(x => [x, currentItem[0]]));
+        function loadParentProps() {
+            const toDo = [[state, state]];
+            while (toDo.length > 0) {
+                const currentItem = toDo[0];
+                currentItem[0].__parent = currentItem[1];
+                toDo.shift();
+                toDo.push(...currentItem[0].children.map(x => [x, currentItem[0]]));
+            }
         }
+        loadParentProps();
         var position = state;
         var observers = [];
         function makeNodeHTML(struct) {
@@ -236,7 +268,7 @@
             node.appendChild(title);
             node.appendChild(editor);
             if (struct === position) {
-                window.onresize = ()=>{
+                window.onresize = () => {
                     latestHostBB = node.getBoundingClientRect();
                     document.querySelectorAll("line").forEach(line => line._reload());
                 }
@@ -263,7 +295,7 @@
                 svg.appendChild(line);
             }
             if (struct === position) {
-                var resizeObserver = new MutationObserver((cb)=>{
+                var resizeObserver = new MutationObserver((cb) => {
                     struct.width = parseInt(node.style.width.replace("px", ""));
                     struct.height = parseInt(node.style.height.replace("px", ""));
                     window.onresize();
@@ -289,7 +321,7 @@
         function reloadUI() {
             reloadLocationUI();
             var nodeContainer = document.querySelector("#nodeContainer");
-            observers.forEach(x=>x.disconnect());
+            observers.forEach(x => x.disconnect());
             observers = [];
             nodeContainer.innerHTML = "";
             document.querySelector("#svg").innerHTML = "";
@@ -309,7 +341,7 @@
             }
             reloadUI();
         });
-        function storeData() {
+        function getSerializeableStateObject() {
             var state2 = structuredClone(state);
             const toDo2 = [state2];
             while (toDo2.length > 0) {
@@ -318,7 +350,10 @@
                 toDo2.shift();
                 toDo2.push(...currentItem.children);
             }
-            localStorage.setItem("data", JSON.stringify(state2));
+            return state2;
+        }
+        function storeData() {
+            localStorage.setItem("data", JSON.stringify(getSerializeableStateObject()));
         }
         window.addEventListener("beforeunload", () => {
             storeData();
@@ -362,12 +397,24 @@
                 return;
             }
             if (!e.shiftKey && (e.key.toLowerCase() === "tab") &&
-            ((e.target === document.body) || (e.target.classList.contains("aTitle")))) {
+                ((e.target === document.body) || (e.target.classList.contains("aTitle")))) {
                 var target = document.elementFromPoint(lastMouseEvent.x, lastMouseEvent.y).closest(".node.subordinate");
                 if (target && (target._struct !== position)) {
                     position = target._struct;
                     reloadUI();
                 }
+                e.preventDefault();
+                return;
+            }
+            if (e.ctrlKey && (e.key.toLowerCase() === "s") &&
+                ((e.target === document.body) || (e.target.classList.contains("aTitle")))) {
+                saveFile();
+                e.preventDefault();
+                return;
+            }
+            if (e.ctrlKey && (e.key.toLowerCase() === "o") &&
+                ((e.target === document.body) || (e.target.classList.contains("aTitle")))) {
+                openFile();
                 e.preventDefault();
                 return;
             }
