@@ -138,6 +138,7 @@
     </div>
     <script>
         const colorRegex = /^!color=(\S+?)$/gm;
+        const checkboxRegex = /^- \[([ xX])\]/m;
         const saveFile = async () => {
             const fileHandle = await window.showSaveFilePicker();
             const writable = await fileHandle.createWritable();
@@ -254,7 +255,38 @@
                 content = content.replace(colorRegex, "");
                 return content;
             }
+            function setStateOfCheckboxAtIndex(content, idx, value) {
+                const lines = content.split("\n");
+                var checkboxIdx = 0;
+                var success = false;
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    const match = checkboxRegex.exec(line);
+                    if (match) {
+                        if (checkboxIdx === idx) {
+                            if (value) {
+                                lines[i] = line.replace(/- \[([ ])\]/m, "- [X]");
+                            } else {
+                                lines[i] = line.replace(/- \[([xX])\]/m, "- [ ]");
+                            }
+                            success = true;
+                            break;
+                        }
+                        checkboxIdx++;
+                    }
+                }
+                return success ? lines.join("\n") : content;
+            }
+            function registerCheckboxes() {
+                editor.querySelectorAll("input[type=checkbox]").forEach((checkbox, checkboxIndex) => {
+                    checkbox.disabled = false;
+                    checkbox.addEventListener("input", ()=>{
+                        struct.content = setStateOfCheckboxAtIndex(struct.content, checkboxIndex, checkbox.checked);
+                    });
+                });
+            }
             editor.innerHTML = marked.parse(processMarkdown(struct.content), { renderer: mRenderer });
+            registerCheckboxes();
             editor.addEventListener("contextmenu", (e) => {
                 if (!e._editing) {
                     e.preventDefault();
@@ -272,6 +304,7 @@
             });
             editor.addEventListener("blur", () => {
                 editor.innerHTML = marked.parse(processMarkdown(struct.content), { renderer: mRenderer });
+                registerCheckboxes();
                 editor._editing = false;
                 editor.contentEditable = false;
             });
