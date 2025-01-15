@@ -47,8 +47,8 @@
         }
 
         .node {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid white;
+            background-color: color-mix(in srgb, var(--colordata) 10%, transparent);;
+            border: 1px solid var(--colordata);
             backdrop-filter: blur(5px);
             position: absolute;
             border-radius: 0.5rem;
@@ -137,6 +137,7 @@
 
     </div>
     <script>
+        const colorRegex = /^!color=(\S+?)$/gm;
         const saveFile = async () => {
             const fileHandle = await window.showSaveFilePicker();
             const writable = await fileHandle.createWritable();
@@ -170,7 +171,7 @@
         var state = JSON.parse(localStorage.getItem("data") || JSON.stringify(
             {
                 name: "My Notebook",
-                content: "Click on the title of a note to rename it. You can also drag notes.\n- Right click to edit the markdown of a note.\n- `Shift + A` to add a note at your cursor.\n- Press `TAB` while hovering over a note to enter it\n- Press `SHIFT + TAB` to exit the current note.\\\n- Press `BACKSPACE` or `DEL` while hovering over a note to delete it.\n- Use `CTRL+S` and `CTRL+O` to save and load notebooks.\\\n\\\n\\\n\\\nMade by [ZXMushroom63](https://github.com/ZXMushroom63)",
+                content: "Click on the title of a note to rename it. You can also drag notes.\n- Right click to edit the markdown of a note.\n- `Shift + A` to add a note at your cursor.\n- Press `TAB` while hovering over a note to enter it\n- Press `SHIFT + TAB` to exit the current note.\n- Press `BACKSPACE` or `DEL` while hovering over a note to delete it.\n- Use `CTRL+S` and `CTRL+O` to save and load notebooks.\n- Put `!color=red` to change the color of a note.\\\n\\\n\\\n\\\nMade by [ZXMushroom63](https://github.com/ZXMushroom63)",
                 width: 500,
                 height: 300,
                 x: 50,
@@ -244,7 +245,16 @@
             var editor = document.createElement("div");
             editor.spellcheck = false;
             editor.classList.add("editor");
-            editor.innerHTML = marked.parse(struct.content, { renderer: mRenderer });
+            node.style.setProperty("--colordata", "white");
+            function processMarkdown(content) {
+                var result = colorRegex.exec(content);
+                if (result) {
+                    node.style.setProperty("--colordata", result[1]);
+                }
+                content = content.replace(colorRegex, "");
+                return content;
+            }
+            editor.innerHTML = marked.parse(processMarkdown(struct.content), { renderer: mRenderer });
             editor.addEventListener("contextmenu", (e) => {
                 if (!e._editing) {
                     e.preventDefault();
@@ -261,7 +271,7 @@
                 }
             });
             editor.addEventListener("blur", () => {
-                editor.innerHTML = marked.parse(struct.content, { renderer: mRenderer });
+                editor.innerHTML = marked.parse(processMarkdown(struct.content), { renderer: mRenderer });
                 editor._editing = false;
                 editor.contentEditable = false;
             });
