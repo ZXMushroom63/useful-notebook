@@ -507,8 +507,8 @@
         });
         window.addEventListener("mousemove", (e) => {
             if (nodeContainerIsDragging) {
-                nodeContainer.style.left = position.lx + (e.x - dragStartPos.x) + "px";
-                nodeContainer.style.top = position.ly + (e.y - dragStartPos.y) + "px";
+                nodeContainer.style.left = (position.lx || 0) + (e.x - dragStartPos.x) + "px";
+                nodeContainer.style.top = (position.ly || 0) + (e.y - dragStartPos.y) + "px";
                 svgResize();
             }
         });
