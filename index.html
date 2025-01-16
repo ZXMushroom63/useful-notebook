@@ -417,12 +417,12 @@
                 e.preventDefault();
             }
 
-            if (e.shiftKey && (e.key.toLowerCase() === "a") && (e.target === document.body)) {
+            if (e.shiftKey && (e.key.toLowerCase() === "a") && (e.target === document.body) && !nodeContainerIsDragging) {
                 var newNode = {
                     name: "New Note",
                     content: "",
-                    x: lastMouseEvent.x,
-                    y: lastMouseEvent.y,
+                    x: lastMouseEvent.x - position.lx,
+                    y: lastMouseEvent.y - position.ly,
                     width: 200,
                     height: 200,
                     children: [],
