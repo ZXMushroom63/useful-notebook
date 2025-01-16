@@ -366,9 +366,11 @@
             document.querySelector("#location").innerText = locationStack.map(x => x.name).join(" / ") + " /";
         }
         function reloadLayerOffset() {
+            position.lx ??= (innerWidth / 2) - position.x - position.width / 2;
+            position.ly ??= (innerHeight / 2) - position.y - position.height / 2
             var nodeContainer = document.querySelector("#nodeContainer");
-            nodeContainer.style.left = (position.lx ?? (innerWidth / 2) - position.x - position.width / 2) + "px";
-            nodeContainer.style.top = (position.ly ?? (innerHeight / 2) - position.y - position.height / 2) + "px";
+            nodeContainer.style.left = position.lx + "px";
+            nodeContainer.style.top = position.ly + "px";
         }
         function reloadUI() {
             reloadLocationUI();
