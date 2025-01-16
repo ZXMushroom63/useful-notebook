@@ -158,6 +158,8 @@
                     width: 300,
                     height: 300,
                     x: 50,
+                    lx: 0,
+                    ly: 0,
                     y: 50,
                     children: []
                 }
@@ -172,7 +174,7 @@
         var state = JSON.parse(localStorage.getItem("data") || JSON.stringify(
             {
                 name: "My Notebook",
-                content: "Click on the title of a note to rename it. You can also drag notes.\n- Right click to edit the markdown of a note.\n- `Shift + A` to add a note at your cursor.\n- Press `TAB` while hovering over a note to enter it\n- Press `SHIFT + TAB` to exit the current note.\n- Press `BACKSPACE` or `DEL` while hovering over a note to delete it.\n- Use `CTRL+S` and `CTRL+O` to save and load notebooks.\n- Put `!color=red` to change the color of a note.\\\n\\\n\\\n\\\nMade by [ZXMushroom63](https://github.com/ZXMushroom63)",
+                content: "Click on the title of a note to rename it. You can also drag notes.\n- Right click to edit the markdown of a note.\n- `Shift + A` to add a note at your cursor.\n- Press `TAB` while hovering over a note to enter it\n- Press `SHIFT + TAB` to exit the current note.\n- Press `BACKSPACE` or `DEL` while hovering over a note to delete it.\n- Use `CTRL+S` and `CTRL+O` to save and load notebooks.\n- Put `!color=red` to change the color of a note.\n- Press `0` when not focused on any element to teleport to the main note. \\\n\\\n\\\n\\\nMade by [ZXMushroom63](https://github.com/ZXMushroom63)",
                 width: 500,
                 height: 300,
                 x: 50,
@@ -308,6 +310,8 @@
                 editor._editing = false;
                 editor.contentEditable = false;
             });
+            node.addEventListener("mousedown", (e)=>{e.stopPropagation()});
+            node.addEventListener("mousemove", (e)=>{e.stopPropagation()});
             node.appendChild(title);
             node.appendChild(editor);
             if (struct === position) {
@@ -361,8 +365,14 @@
             }
             document.querySelector("#location").innerText = locationStack.map(x => x.name).join(" / ") + " /";
         }
+        function reloadLayerOffset() {
+            var nodeContainer = document.querySelector("#nodeContainer");
+            nodeContainer.style.left = (position.lx || 0) + "px";
+            nodeContainer.style.top = (position.ly || 0) + "px";
+        }
         function reloadUI() {
             reloadLocationUI();
+            reloadLayerOffset();
             var nodeContainer = document.querySelector("#nodeContainer");
             observers.forEach(x => x.disconnect());
             observers = [];
@@ -413,6 +423,8 @@
                     content: "",
                     x: lastMouseEvent.x,
                     y: lastMouseEvent.y,
+                    lx: 0,
+                    ly: 0,
                     width: 200,
                     height: 200,
                     children: [],
@@ -461,6 +473,14 @@
                 e.preventDefault();
                 return;
             }
+            if ((e.key.toLowerCase() === "0") &&
+                (e.target === document.body)) {
+                position.lx = position.x - position.width;
+                position.ly = position.y - (position.height / 2);
+                reloadLayerOffset();
+                e.preventDefault();
+                return;
+            }
         });
         function svgResize() {
             document.querySelector("#svg").setAttribute("viewBox", `0 0 ${window.innerWidth} ${window.innerHeight}`);
@@ -469,6 +489,31 @@
                 document.querySelectorAll("line").forEach(line => line._reload());
             }
         }
+        var nodeContainerIsDragging = false;
+        var dragStartPos = {x: 0, y: 0};
+        var nodeContainer = document.querySelector("#nodeContainer");
+        nodeContainer.addEventListener("mousedown", (e)=>{
+            if (e.button === 2) {
+                console.log("started");
+                dragStartPos = e;
+                nodeContainerIsDragging = true;
+            }
+        });
+        nodeContainer.addEventListener("mouseup", (e)=>{
+            if (e.button === 2) {
+                console.log("stopped");
+                position.lx = parseInt(nodeContainer.style.left.replace("px", ""));
+                position.ly = parseInt(nodeContainer.style.top.replace("px", ""));
+                nodeContainerIsDragging = false;
+            }
+        });
+        nodeContainer.addEventListener("mousemove", (e)=>{
+            if (nodeContainerIsDragging) {
+                nodeContainer.style.left = position.lx + (e.x - dragStartPos.x) + "px";
+                nodeContainer.style.top = position.ly + (e.y - dragStartPos.y) + "px";
+            }
+        });
+        nodeContainer.addEventListener("contextmenu", (e)=>{e.preventDefault()});
         svgResize();
         window.addEventListener("resize", svgResize);
     </script>
