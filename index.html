@@ -47,7 +47,8 @@
         }
 
         .node {
-            background-color: color-mix(in srgb, var(--colordata) 10%, transparent);;
+            background-color: color-mix(in srgb, var(--colordata) 10%, transparent);
+            ;
             border: 1px solid var(--colordata);
             backdrop-filter: blur(5px);
             position: absolute;
@@ -154,7 +155,7 @@
             } catch (error) {
                 state = {
                     name: "Load Error 🙁",
-                    content: "!color=red\nThe notebook file you selected was invalid.\\\nError: "+error,
+                    content: "!color=red\nThe notebook file you selected was invalid.\\\nError: " + error,
                     width: 300,
                     height: 300,
                     x: 50,
@@ -282,7 +283,7 @@
             function registerCheckboxes() {
                 editor.querySelectorAll("input[type=checkbox]").forEach((checkbox, checkboxIndex) => {
                     checkbox.disabled = false;
-                    checkbox.addEventListener("input", ()=>{
+                    checkbox.addEventListener("input", () => {
                         struct.content = setStateOfCheckboxAtIndex(struct.content, checkboxIndex, checkbox.checked);
                     });
                 });
@@ -310,8 +311,7 @@
                 editor._editing = false;
                 editor.contentEditable = false;
             });
-            node.addEventListener("mousedown", (e)=>{e.stopPropagation()});
-            node.addEventListener("mousemove", (e)=>{e.stopPropagation()});
+            node.addEventListener("mousedown", (e) => { e.stopPropagation() });
             node.appendChild(title);
             node.appendChild(editor);
             if (struct === position) {
@@ -367,8 +367,8 @@
         }
         function reloadLayerOffset() {
             var nodeContainer = document.querySelector("#nodeContainer");
-            nodeContainer.style.left = (position.lx || 0) + "px";
-            nodeContainer.style.top = (position.ly || 0) + "px";
+            nodeContainer.style.left = (position.lx ?? (innerWidth / 2) - position.x - position.width / 2) + "px";
+            nodeContainer.style.top = (position.ly ?? (innerHeight / 2) - position.y - position.height / 2) + "px";
         }
         function reloadUI() {
             reloadLocationUI();
@@ -423,8 +423,6 @@
                     content: "",
                     x: lastMouseEvent.x,
                     y: lastMouseEvent.y,
-                    lx: 0,
-                    ly: 0,
                     width: 200,
                     height: 200,
                     children: [],
@@ -475,9 +473,11 @@
             }
             if ((e.key.toLowerCase() === "0") &&
                 (e.target === document.body)) {
-                position.lx = position.x - position.width;
-                position.ly = position.y - (position.height / 2);
+                console.log(position);
+                position.lx = (innerWidth / 2) - position.x - position.width / 2;
+                position.ly = (innerHeight / 2) - position.y - position.height / 2;
                 reloadLayerOffset();
+                svgResize();
                 e.preventDefault();
                 return;
             }
@@ -490,30 +490,29 @@
             }
         }
         var nodeContainerIsDragging = false;
-        var dragStartPos = {x: 0, y: 0};
+        var dragStartPos = { x: 0, y: 0 };
         var nodeContainer = document.querySelector("#nodeContainer");
-        nodeContainer.addEventListener("mousedown", (e)=>{
+        window.addEventListener("mousedown", (e) => {
             if (e.button === 2) {
-                console.log("started");
                 dragStartPos = e;
                 nodeContainerIsDragging = true;
             }
         });
-        nodeContainer.addEventListener("mouseup", (e)=>{
+        window.addEventListener("mouseup", (e) => {
             if (e.button === 2) {
-                console.log("stopped");
                 position.lx = parseInt(nodeContainer.style.left.replace("px", ""));
                 position.ly = parseInt(nodeContainer.style.top.replace("px", ""));
                 nodeContainerIsDragging = false;
             }
         });
-        nodeContainer.addEventListener("mousemove", (e)=>{
+        window.addEventListener("mousemove", (e) => {
             if (nodeContainerIsDragging) {
                 nodeContainer.style.left = position.lx + (e.x - dragStartPos.x) + "px";
                 nodeContainer.style.top = position.ly + (e.y - dragStartPos.y) + "px";
+                svgResize();
             }
         });
-        nodeContainer.addEventListener("contextmenu", (e)=>{e.preventDefault()});
+        window.addEventListener("contextmenu", (e) => { e.preventDefault() });
         svgResize();
         window.addEventListener("resize", svgResize);
     </script>
