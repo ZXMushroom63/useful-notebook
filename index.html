@@ -413,6 +413,10 @@
         window.addEventListener("beforeunload", () => {
             storeData();
         });
+        window.addEventListener("blur", () => {
+            // just in case
+            storeData();
+        });
         window.addEventListener("mousemove", (e) => lastMouseEvent = e);
         window.addEventListener("keydown", (e) => {
             if (e.key.toLowerCase() === "tab") {
