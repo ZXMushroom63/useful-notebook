@@ -294,7 +294,7 @@
                 if (!e._editing) {
                     e.preventDefault();
                     editor.contentEditable = true;
-                    editor.innerText = struct.content;
+                    editor.innerText = struct.content.replaceAll(" ", " ");
                     editor.focus();
                     editor.click();
                     editor._editing = true;
