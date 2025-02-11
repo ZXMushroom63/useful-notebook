@@ -73,6 +73,7 @@
             backdrop-filter: blur(10px);
             cursor: grab;
             white-space: nowrap;
+            overflow-y: hidden;
         }
 
         .node:not(.subordinate) {
@@ -231,8 +232,11 @@
                 window.addEventListener("mouseup", stopDragHandler);
             })
             title.addEventListener("keyup", () => {
-                struct.name = title.innerText;
+                struct.name = title.innerText.replaceAll("\n", "");
                 reloadLocationUI();
+            });
+            title.addEventListener("blur", () => {
+                title.innerText = title.innerText.replaceAll("\n", "");
             });
             node.addEventListener("mouseup", () => {
                 struct.width = parseInt(node.style.width.replace("px", ""));
