@@ -118,6 +118,10 @@ function makeNodeHTML(struct) {
         node.scrollLeft = 0;
         node.scrollTop = 0;
     });
+    node.addEventListener("keyup", () => {
+        node.scrollLeft = 0;
+        node.scrollTop = 0;
+    });
     node.addEventListener("mouseleave", () => {
         struct.width = parseInt(node.style.width.replace("px", ""));
         struct.height = parseInt(node.style.height.replace("px", ""));
