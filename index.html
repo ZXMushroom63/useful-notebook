@@ -75,10 +75,30 @@
             cursor: grab;
             white-space: nowrap;
             overflow-y: hidden;
+            outline: 0 !important;
         }
 
         .node:not(.subordinate) {
             box-shadow: 0px 0px 12px 1px color-mix(in srgb, var(--colordata) 50%, transparent);
+        }
+
+        :root.printmode .node {
+            --colordata: black !important;
+            text-shadow: none !important;
+            color: black;
+        }
+        :root.printmode .editor {
+            text-shadow: none !important;
+            background-color: transparent !important;
+        }
+        :root.printmode .node a {
+            color: rgb(31, 56, 84) !important;
+        }
+        :root.printmode svg line {
+            stroke: black !important;
+        }
+        :root.printmode, :root.printmode body {
+            background-color: white !important;
         }
 
         .subordinate {
@@ -113,6 +133,7 @@
         a:hover {
             color: white;
         }
+    
 
         #svg {
             position: fixed;
@@ -121,6 +142,12 @@
             left: 0;
             top: 0;
             height: 100vh;
+        }
+
+        :root.printmode code {
+            background-color: transparent !important;
+            border: 1px solid black;
+            padding: 1px !important;
         }
 
         code {

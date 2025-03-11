@@ -52,6 +52,12 @@ function loadParentProps() {
         toDo.push(...currentItem[0].children.map(x => [x, currentItem[0]]));
     }
 }
+window.addEventListener("keydown", (e)=>{
+    if (e.key === "p" && e.altKey) {
+        document.documentElement.classList.toggle("printmode");
+        e.preventDefault();
+    }
+});
 loadParentProps();
 var position = state;
 var startParams = new URLSearchParams(location.search);
