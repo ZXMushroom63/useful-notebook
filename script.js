@@ -35,7 +35,7 @@ var mRenderer;
 var state = JSON.parse(localStorage.getItem("data") || JSON.stringify(
     {
         name: "My Notebook",
-        content: "Click on the title of a note to rename it. You can also drag notes.\n- Right click to edit the markdown of a note.\n- `Shift + A` to add a note at your cursor.\n- Press `TAB` while hovering over a note to enter it\n- Press `SHIFT + TAB` to exit the current note.\n- Press `BACKSPACE` or `DEL` while hovering over a note to delete it.\n- Use `CTRL+S` and `CTRL+O` to save and load notebooks.\n- Put `!color=red` to change the color of a note.\n- Press `0` when not focused on any element to teleport to the main note. \\\n\\\n\\\n\\\nMade by [ZXMushroom63](https://github.com/ZXMushroom63)",
+        content: "Click on the title of a note to rename it. You can also drag notes.\n- Right click to edit the markdown of a note.\n- `Shift + A` to add a note at your cursor.\n- Press `TAB` while hovering over a note to enter it\n- Press `SHIFT + TAB` to exit the current note.\n- Press `BACKSPACE` or `DEL` while hovering over a note to delete it.\n- Use `CTRL+S` and `CTRL+O` to save and load notebooks.\n- Put `!color=red` to change the color of a note.\n- Press `0` when not focused on any element to teleport to the main note.\n- Press `ALT`+`P` to toggle printing mode. \\\n\\\n\\\n\\\nMade by [ZXMushroom63](https://github.com/ZXMushroom63)",
         width: 500,
         height: 300,
         x: 50,
