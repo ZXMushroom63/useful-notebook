@@ -194,7 +194,10 @@ function makeNodeHTML(struct) {
             struct.content = editor.innerText.replaceAll(" ", " ");
         }
     });
-    editor.addEventListener("blur", () => {
+    editor.addEventListener("blur", (e) => {
+        if (document.activeElement === editor) {
+            return;
+        }
         editor.innerHTML = marked.parse(processMarkdown(struct.content), { renderer: mRenderer });
         registerCheckboxes();
         editor._editing = false;
