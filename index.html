@@ -51,7 +51,7 @@
             background-color: color-mix(in srgb, var(--colordata) 10%, transparent);
             ;
             border: 1px solid var(--colordata);
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(9px);
             position: absolute;
             border-radius: 0.5rem;
             min-width: 5rem;
@@ -71,7 +71,7 @@
             line-height: 2rem;
             font-size: 1.6rem;
             background-color: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(5px);
             cursor: grab;
             white-space: nowrap;
             overflow-y: hidden;
@@ -86,6 +86,10 @@
             --colordata: black !important;
             text-shadow: none !important;
             color: black;
+            backdrop-filter: unset !important;
+        }
+        :root.printmode .aTitle {
+            backdrop-filter: unset !important;
         }
         :root.printmode .editor, :root.printmode .editor * {
             text-shadow: none !important;
