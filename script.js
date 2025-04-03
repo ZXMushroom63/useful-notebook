@@ -1,5 +1,5 @@
 const colorRegex = /^!color=(\S+?)$/gm;
-const checkboxRegex = /^- \[([ xX])\] \S/m;
+const checkboxRegex = /- \[([ xX])\] \S/m;
 const saveFile = async () => {
     const fileHandle = await window.showSaveFilePicker();
     const writable = await fileHandle.createWritable();
