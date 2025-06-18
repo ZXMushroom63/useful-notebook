@@ -145,6 +145,8 @@ function makeNodeHTML(struct) {
             node.style.setProperty("--colordata", result[1]);
         }
         content = content.replace(colorRegex, "");
+        content = content.replaceAll("<hl>", "<span style='color:yellow'>");
+        content = content.replaceAll("</hl>", "</span>");
         return content;
     }
     function setStateOfCheckboxAtIndex(content, idx, value) {
