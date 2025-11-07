@@ -1,3 +1,6 @@
+function codeProcessor(e) {
+    (new Function(e.target.parentElement.querySelector("code").innerText))();
+}
 const colorRegex = /^!color=(\S+?)$/gm;
 const checkboxRegex = /- \[([ xX])\] \S/m;
 const saveFile = async () => {
@@ -5,6 +8,7 @@ const saveFile = async () => {
     const writable = await fileHandle.createWritable();
     await writable.write(JSON.stringify(getSerializeableStateObject()));
     await writable.close();
+    localStorage.setItem("last-backup-date-pnb", Date.now());
 };
 const openFile = async () => {
     const [fileHandle] = await window.showOpenFilePicker();
@@ -180,6 +184,7 @@ function makeNodeHTML(struct) {
         });
     }
     editor.innerHTML = marked.parse(processMarkdown(struct.content), { renderer: mRenderer });
+    editor.querySelectorAll(".codeprocess").forEach(e => e.addEventListener("click", codeProcessor));
     registerCheckboxes();
     editor.addEventListener("contextmenu", (e) => {
         if (!e._editing) {
@@ -201,6 +206,7 @@ function makeNodeHTML(struct) {
             return;
         }
         editor.innerHTML = marked.parse(processMarkdown(struct.content), { renderer: mRenderer });
+        editor.querySelectorAll(".codeprocess").forEach(e => e.addEventListener("click", codeProcessor));
         registerCheckboxes();
         editor._editing = false;
         editor.contentEditable = false;
@@ -287,6 +293,19 @@ window.addEventListener("load", () => {
     mRenderer = new marked.Renderer();
     mRenderer.link = function (data) {
         return '<a target="_blank" href="' + data.href + (data.title ? '" title="' + data.title : "") + '">' + data.text + '</a>';
+    }
+    mRenderer.code = function (data) {
+        return `<pre><code class="language-${data.lang}">${data.text
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll("\"", "&quot;")
+            .replaceAll("'", "&#39;")
+        }</code>
+        ${((data.lang === "js") || (data.lang === "javascript")) ? `<button class="codeprocess">►</button>` : ""}</pre>`;
+    }
+    mRenderer.del = function (data) {
+      return `<sub style="">${data.text}</sub>`;
     }
     reloadUI();
 });
