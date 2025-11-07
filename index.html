@@ -86,23 +86,30 @@
             text-shadow: none !important;
             color: black !important;
             backdrop-filter: none;
-            background-color: rgb(230,230,230) !important;
+            background-color: rgb(230, 230, 230) !important;
         }
+
         :root.printmode .aTitle {
             backdrop-filter: none;
-            background-color: rgb(210,210,210) !important;
+            background-color: rgb(210, 210, 210) !important;
         }
-        :root.printmode .editor, :root.printmode .editor * {
+
+        :root.printmode .editor,
+        :root.printmode .editor * {
             text-shadow: none !important;
             background-color: transparent !important;
         }
+
         :root.printmode .node a {
             color: rgb(31, 56, 84) !important;
         }
+
         :root.printmode svg line {
             stroke: black !important;
         }
-        :root.printmode, :root.printmode body {
+
+        :root.printmode,
+        :root.printmode body {
             background-color: white !important;
         }
 
@@ -117,13 +124,14 @@
             overflow-x: hidden;
             overflow-y: scroll;
             outline: none !important;
-            text-shadow: 0px 0px 2px rgba(0,0,0,0.25);
+            text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.25);
         }
 
-        .editor[contenteditable="true"], .editor[contenteditable="true"] * {
+        .editor[contenteditable="true"],
+        .editor[contenteditable="true"] * {
             font-size: 0.75rem;
             font-family: monospace !important;
-            text-shadow: 0px 0px 3px rgba(0,0,0,0.75);
+            text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.75);
         }
 
         .editor[contenteditable="true"] {
@@ -138,7 +146,7 @@
         a:hover {
             color: white;
         }
-    
+
 
         #svg {
             position: fixed;
@@ -163,6 +171,28 @@
             position: relative;
             top: -2px;
             transition: background-color 0.3s;
+        }
+
+        .codeprocess {
+            display: block;
+            margin-top: 0;
+            position: relative;
+            bottom: 2rem;
+            outline-color: transparent;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transition: 0.2s;
+            border: 0;
+            border-radius: 4px;
+            padding: 4px 12px;
+        }
+
+        .codeprocess:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .codeprocess:active {
+            background: rgba(255, 255, 255, 0.25);
         }
 
         code:hover {
@@ -206,6 +236,7 @@
     </div>
     <script src="script.js"></script>
     <script id="markedjs" src="marked.js"></script>
+    <script id="annoyingreminder"src="remember.js"></script>
 </body>
 
 </html>
