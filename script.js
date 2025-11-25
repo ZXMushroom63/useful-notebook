@@ -81,6 +81,12 @@ function makeNodeHTML(struct) {
     var startPos;
     var node = document.createElement("div");
     var title = document.createElement("span");
+
+    if (startParams.has("ldm")) {
+        node.style.background = "color-mix(in srgb, var(--colordata) 10%, rgb(30,30,30))";
+        node.style.backdropFilter = "none";
+        title.style.backdropFilter = "none";
+    }
     node.classList.add("node");
     node._struct = struct;
     title.classList.add("aTitle");
